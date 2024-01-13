@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum BookCategory {
+  Fiction
+  NonFiction
+  Mystery
+  Romance
+  ScienceFiction
+  Fantasy
+  Biography
+  SelfHelp
+  History
+  Thriller
+  Horror
+  Poetry
+  Business
+  Travel
+  Cookbooks
+  Science
+  Technology
+  HealthAndWellness
+  ChildrensBooks
+  YoungAdult
+}
+
+enum BookStatus {
+  IN_SHELF
+  BORROWED
+}
+
+enum PaymentStatus {
+  NONE
+  PENDING
+  ACCEPTED
+}
+
+model Admin {
+  id  String @id @default(uuid())  @db.Uuid
+  fullName  String  @default("John Doe")
+  profilePhoto  String?  @default("https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg")
+  regNo  String  @unique
+  phoneNumber  String?  @default("")
+  email  String  @unique
+  password  String 
+  about  String?  @default("")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model User {
+  id  String @id @default(uuid())  @db.Uuid
+  fullName  String  @default("John Doe")
+  profilePhoto  String?  @default("https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg")
+  regNo  String  @unique
+  phoneNumber  String?  @default("")
+  email  String  @unique
+  password  String 
+  about  String?  @default("")
+  disabled  Boolean  @default(false)
+  borrows Borrow[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Book {
+  id  String @id @default(uuid())  @db.Uuid
+  bookName  String
+  authorName  String
+  about  String?  @default("")
+  isbn  String  @unique
+  eBook  String?  @default("")
+  audioBook  String?  @default("")
+  converImage  String
+  category  BookCategory
+  hardCopyFormat  Boolean?  @default(false)
+  eBookFormat  Boolean?  @default(false)
+  audioBookFormat  Boolean?  @default(false)
+  status  BookStatus  @default(IN_SHELF)
+  borrows Borrow[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Borrow {
+  id  String @id @default(uuid())  @db.Uuid
+  user User @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+  book Book @relation(fields: [bookId], references: [id])
+  bookId String @db.Uuid
+  bookName String
+  isbn String
+  borrowDate DateTime
+  returnDate DateTime
+  fine Int @default(0)
+  paymentStatus PaymentStatus @default(NONE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
